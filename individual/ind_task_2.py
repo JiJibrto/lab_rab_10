@@ -12,12 +12,7 @@ import json
 # нет, выдать на дисплей соответствующее сообщение.
 
 
-def add():
-    las_name = str(input("Enter last name>  "))
-    name = str(input("Enter first name> "))
-    tel = int(input("Enter phone> +"))
-    date = list(map(int, input("Enter birthdate separated by space> ").split(" ")))
-
+def add(workers, las_name, name, tel, date):
     temp = {
         'las_name': las_name,
         'name': name,
@@ -30,7 +25,8 @@ def add():
         workers.sort(key=lambda item: item.get('las_name', ''))
 
 
-def list_def():
+def list_def(workers):
+    table = []
     line = "+-{}-+-{}-+-{}-+-{}-+-{}-+".format(
         '-' * 4,
         '-' * 15,
@@ -38,8 +34,8 @@ def list_def():
         '-' * 20,
         '-' * 20
     )
-    print(line)
-    print(
+    table.append(line)
+    table.append(
         "| {:^4} | {:^15} | {:^15} | {:^20} | {:^20} |".format(
             "№",
             "Фамилия",
@@ -48,9 +44,9 @@ def list_def():
             "Дата рождения"
         )
     )
-    print(line)
+    table.append(line)
     for idx, worker in enumerate(workers, 1):
-        print(
+        table.append(
             '| {:>4} | {:<15} | {:<15} | {:>20} | {:^20} |'.format(
                 idx,
                 worker.get('las_name', ''),
@@ -59,11 +55,12 @@ def list_def():
                 ".".join(map(str, worker.get('date')))
             )
         )
-    print(line)
+        table.append(line)
+    return '\n'.join(table)
 
 
-def task():
-    check = list(map(int, input("Enter birthdate separated by space> ").split(" ")))
+def task(workers, check):
+    table = []
     task_list = []
     iz = 0
     for worker in workers:
@@ -81,8 +78,8 @@ def task():
             '-' * 20,
             '-' * 20
         )
-        print(line)
-        print(
+        table.append(line)
+        table.append(
             "| {:^4} | {:^15} | {:^15} | {:^20} | {:^20} |".format(
                 "№",
                 "Фамилия",
@@ -91,9 +88,9 @@ def task():
                 "Дата рождения"
             )
         )
-        print(line)
+        table.append(line)
         for idx, worker in enumerate(task_list, 1):
-            print(
+            table.append(
                 '| {:>4} | {:<15} | {:<15} | {:>20} | {:^20} |'.format(
                     idx,
                     worker.get('las_name', ''),
@@ -102,23 +99,17 @@ def task():
                     ".".join(map(str, worker.get('date')))
                 )
             )
-        print(line)
+        return '\n'.join(table)
 
 
-def load():
-    # Разбить команду на части для выделения имени файла.
-    parts = command.split(' ', maxsplit=1)
-
+def load(parts):
     # Прочитать данные из файла JSON.
     with open(parts[1], 'r') as f:
         return json.load(f)
 
 
 
-def save():
-    # Разбить команду на части для выделения имени файла.
-    parts = command.split(' ', maxsplit=1)
-
+def save(parts):
     # Сохранить данные в файл JSON.
     with open(parts[1], 'w') as f:
         json.dump(workers, f)
@@ -144,19 +135,27 @@ if __name__ == '__main__':
             break
 
         elif command == "add":
-            add()
+            las_name = str(input("Enter last name>  "))
+            name = str(input("Enter first name> "))
+            tel = int(input("Enter phone> +"))
+            date = list(map(int, input("Enter birthdate separated by space> ").split(" ")))
+            add(workers, las_name, name, tel, date)
 
         elif command == "list":
-            list_def()
+            print(list_def(workers))
 
         elif command == "task":
-            task()
+            check = list(map(int, input("Enter birthdate separated by space> ").split(" ")))
+            print(task(workers, check))
 
         elif command.startswith('load '):
-            workers = load()
+            # Разбить команду на части для выделения имени файла.
+            parts = command.split(' ', maxsplit=1)
+            workers = load(parts)
 
         elif command.startswith('save '):
-            save()
+            parts = command.split(' ', maxsplit=1)
+            save(parts)
 
         elif command == 'help':
             help()
